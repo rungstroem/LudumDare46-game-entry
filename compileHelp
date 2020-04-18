@@ -1,0 +1,1 @@
+g++ spaceInvaders.cpp -w -lSDL2 -o spaceInvaders
