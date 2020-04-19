@@ -1,5 +1,8 @@
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <vector>
+
+using namespace std;
 
 //Variables
 const int screenWidth = 600;
@@ -81,13 +84,60 @@ struct healthBar{
 	}
 };
 
-struct alien{
-	Uint32 form[][] = AlienForm;
-	healthBar h;
-	Uint32 health[][] = h.health;
+class alien {
+	public:
+	alien(){
+		memcpy(form,AlienForm,sizeof(Uint32)*20*20);
+	}
+	int x = 0;
+	int y = 10;
+	int hit = 0;
+
+	Uint32 form[20][20];
+	
+	Uint32 healthBar[5][20] = {	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+					{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+					{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+					{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+					{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}	};
+	void reduceHealth(){
+		for(int i = 0; i < 20; i++){
+			if(healthBar[0][1] == 0){
+				break;
+			}
+			if(healthBar[0][18] == 1){
+				healthBar[0][18] = 0, healthBar[0][19] = 0;
+				healthBar[1][18] = 0, healthBar[1][19] = 0;
+				healthBar[2][18] = 0, healthBar[2][19] = 0;
+				healthBar[3][18] = 0, healthBar[3][19] = 0;
+				healthBar[4][18] = 0, healthBar[4][19] = 0;
+				break;
+			}
+			if(healthBar[0][i] == 0){
+				healthBar[0][i-1] = 0, healthBar[0][i-2] = 0;
+				healthBar[1][i-1] = 0, healthBar[1][i-2] = 0;
+				healthBar[2][i-1] = 0, healthBar[2][i-2] = 0;
+				healthBar[3][i-1] = 0, healthBar[3][i-2] = 0;
+				healthBar[4][i-1] = 0, healthBar[4][i-2] = 0;
+				break;
+			}
+		}
+	}
 };
 
-using namespace std;
+class bullet{
+	public:
+	int x = 0;
+	int y = 0;
+
+	Uint32 form[2][2] = { 	{1,1}, 
+       				{1,1}	}; 
+	
+	void inc(){
+		int y = y-6;
+	}
+};
+
 int main(int argc, char* args[]){
 	Uint32 shipForm1D[20*20];
 	Uint32 AlienForm1D[20*20];
@@ -126,18 +176,31 @@ int main(int argc, char* args[]){
 	}
 
 	//Create number of aliens
+	alien A;
+	vector<alien> Aliens;
 	for(int i = 0; i < screenWidth / 25; i++){
-		if(i>100) i = 100;
-		Alien + "i"
+		Aliens.push_back(A);
+		Aliens[i].x = i*25;
 	}
 
+	bullet B;
+	vector<bullet> Bullets;
+	
+	int spaceShipSteps = 15;
 
 	int playerPosX = screenWidth / 2 -10;
 	int playerPosY = screenHeight - 20;
+
+	int alienShiftCounter = 0;
+	bool hasShifted = false;
+	int newAlienRow = 0;
 	
 	//Game-loop
 	while(!quit){
-		
+		//Clear screen
+		SDL_SetRenderDrawColor(render, 0,0,0,0);
+		SDL_RenderClear(render);
+
 		//Input event handling
 		while(SDL_PollEvent(&inputEvent) != 0){
 			if(inputEvent.type == SDL_QUIT || inputEvent.key.keysym.sym == SDLK_ESCAPE){
@@ -145,36 +208,72 @@ int main(int argc, char* args[]){
 			} else if(inputEvent.type = SDL_KEYDOWN){
 				switch (inputEvent.key.keysym.sym){
 					case SDLK_UP:
-						playerPosY-=10;
+						playerPosY -= spaceShipSteps;
 						if(playerPosY<0) playerPosY=0;
 						//Do stuff with keyinputs
 						break;
 					case SDLK_DOWN:
-						playerPosY+=10;
+						playerPosY += spaceShipSteps;
 						if(playerPosY>screenHeight -20) playerPosY=screenHeight -20;
 						//Do stuff with keyinputs
 						break;
 					case SDLK_LEFT:
-						playerPosX-=10;
+						playerPosX -= spaceShipSteps;
 						if(playerPosX<0) playerPosX=0;
 						//Do stuff with keyinputs
 						break;
 					case SDLK_RIGHT:
-						playerPosX+=10;
+						playerPosX += spaceShipSteps;
 						if(playerPosX>screenWidth -20) playerPosX=screenWidth -20;
 						//Do stuff with keyinputs
 						break;
 					case SDLK_SPACE:
+						//Create instances for class Bullets and push to vector
+						bullet B;
+						B.x = playerPosX +10;
+						B.y = playerPosY;
+						Bullets.push_back(B);
 						//Do stuff with keyinputs
 						break;
 
 				}
 			}
 		}
-		//Clear screen
-		SDL_SetRenderDrawColor(render, 0,0,0,0);
-		SDL_RenderClear(render);
 		
+		//Shifts the aliens 
+		if(alienShiftCounter == 100){
+			if(hasShifted == false){
+				for(int i = 0; i < Aliens.size(); i++){
+					Aliens[i].x += 5;
+				}
+				hasShifted = true;
+			} else{
+				for(int i = 0; i < Aliens.size(); i++){
+					Aliens[i].x -= 5;
+				}
+				hasShifted = false;
+			}
+		}
+		
+		//Draw Aliens	
+		for(int k = 0; k < Aliens.size(); k++){
+			SDL_SetRenderDrawColor(render,255,255,255,255);
+			if(Aliens[k].hit > 20){
+				SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+			}
+			if(Aliens[k].hit > 40){
+				Aliens.erase(Aliens.begin()+k);
+				continue;
+			}
+			for(int i = Aliens[k].x; i < Aliens[k].x + 20; i++){
+				for(int j = Aliens[k].y; j < Aliens[k].y + 20; j++){
+					if(Aliens[k].form[j-Aliens[k].y][i-Aliens[k].x] == 1){
+						SDL_RenderDrawPoint(render, i, j);
+					}
+				}
+			}
+		}
+
 		//Draw spaceship
 		SDL_SetRenderDrawColor(render, 255,255,255,255);
 		for(int i = playerPosX; i < playerPosX + 20; i++){
@@ -185,13 +284,59 @@ int main(int argc, char* args[]){
 				}
 			}
 		}
-	
-		//Draw aliens
-		for(int i = 0; i < screenWidth / 25; i++){
-			
+		
+		//Draw bullets
+		SDL_SetRenderDrawColor(render, 255,255,255,255);
+		for(int k = 0;k<Bullets.size(); k++){
+			for(int i = Bullets[k].x; i < Bullets[k].x+2; i++){
+				for(int j = Bullets[k].y; j < Bullets[k].y+2; j++){
+					if(Bullets[k].form[j-Bullets[k].y][i-Bullets[k].x] == 1){
+						SDL_RenderDrawPoint(render, i, j);
+					}
+				}
+			}
 		}
 
+		//Advance alle bullets
+		for(int i = 0; i<Bullets.size(); i++){
+			Bullets[i].y -= 1;
+			if(Bullets[i].y < 1){
+				Bullets.erase(Bullets.begin()+i);
+			}
+		}
+		
+		//Collision detection
+		for(int l = 0; l < Aliens.size(); l++){
+			for(int k = 0; k < Bullets.size(); k++){
+				if(Bullets[k].x > Aliens[l].x && Bullets[k].x < Aliens[l].x+20){
+					if(Bullets[k].y < Aliens[l].y+20){	
+						Aliens[l].hit++;
+					}
+				}
+			}
+			//Game over check
+			if(Aliens[l].y > screenHeight){
+				quit = true;
+			}
+		}
 
+		alienShiftCounter++;
+		if(alienShiftCounter > 100) alienShiftCounter = 0;
+		
+		newAlienRow++;
+		if(newAlienRow > 500){
+			for(int i = 0; i < Aliens.size(); i++){
+				Aliens[i].y += 30;
+			}
+			/*	
+			for(int i = 0; i < screenWidth/25; i++){
+				Aliens.push_back(A);
+				Aliens[i+screenWidth/25].x = i*25;
+			} 
+			*/
+			newAlienRow = 0;
+		}
+		
 		//Update screen - end of game-loop
 		SDL_RenderPresent(render);
 
