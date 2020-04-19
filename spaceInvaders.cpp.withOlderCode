@@ -6,7 +6,7 @@ using namespace std;
 
 //Variables
 const int screenWidth = 600;
-const int screenHeight = 400;
+const int screenHeight = 600;
 
 bool quit = false;
 //Uint32 *pixels;
@@ -192,8 +192,7 @@ int main(int argc, char* args[]){
 	vector<bullet> Bullets;
 	
 	//Needed variables
-	int spaceShipSteps = 10;
-	int alienRowSeperator = 30;
+	int spaceShipSteps = 15;
 
 	int playerPosX = screenWidth / 2 -10;
 	int playerPosY = screenHeight - 20;
@@ -263,6 +262,22 @@ int main(int argc, char* args[]){
 				}
 			}
 		}
+		/*
+		//Shifts the aliens 
+		if(alienShiftCounter == 100){
+			if(hasShifted == false){
+				for(int i = 0; i < Aliens.size(); i++){
+					Aliens[i].x += 5;
+				}
+				hasShifted = true;
+			} else{
+				for(int i = 0; i < Aliens.size(); i++){
+					Aliens[i].x -= 5;
+				}
+				hasShifted = false;
+			}
+		}*/
+		
 		
 		//Draw Aliens	
 		for(int l = 0; l < AlienRows.size(); l++){	
@@ -284,6 +299,25 @@ int main(int argc, char* args[]){
 				}
 			}
 		}
+
+		//Draw Aliens	
+		/*for(int k = 0; k < Aliens.size(); k++){
+			SDL_SetRenderDrawColor(render,255,255,255,255);
+			if(Aliens[k].hit > 20){
+				SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+			}
+			if(Aliens[k].hit > 40){
+				Aliens.erase(Aliens.begin()+k);
+				continue;
+			}
+			for(int i = Aliens[k].x; i < Aliens[k].x + 20; i++){
+				for(int j = Aliens[k].y; j < Aliens[k].y + 20; j++){
+					if(Aliens[k].form[j-Aliens[k].y][i-Aliens[k].x] == 1){
+						SDL_RenderDrawPoint(render, i, j);
+					}
+				}
+			}
+		}*/
 
 		//Draw spaceship
 		SDL_SetRenderDrawColor(render, 255,255,255,255);
@@ -320,31 +354,35 @@ int main(int argc, char* args[]){
 		for(int i = 0; i < AlienRows.size(); i++){	
 			for(int l = 0; l < AlienRows[i].size(); l++){
 				for(int k = 0; k < Bullets.size(); k++){
-					/*if(Bullets[k].x > AlienRows[i][l].x && Bullets[k].x < AlienRows[i][l].x+20){
+					if(Bullets[k].x > AlienRows[i][l].x && Bullets[k].x < AlienRows[i][l].x+20){
 						if(Bullets[k].y < AlienRows[i][l].y+20){	
 							AlienRows[i][l].hit++;
+							//Bullets.erase(Bullets.begin()+k);
 						}
-						//Bullets.erase(Bullets.begin()+k);
-					}*/
-					if(abs(Bullets[k].x - AlienRows[i][l].x) < 20 && abs(Bullets[k].y - AlienRows[i][l].y) < 20){
-						AlienRows[i][l].hit++;
 					}
 				}
 				//Game over check
-				if(AlienRows[i][l].y > screenHeight){	//Alien reached bottom of screen
-					quit = true;
-				}
-				/*
-				if(AlienRows[i][l].x > playerPosX && AlienRows[i][l].x < playerPosX+20){
-					if(AlienRows[i][l].y > playerPosY){	//Alien hit spaceship
-						quit = true;
-					}
-				} */
-				if(abs(AlienRows[i][l].x - playerPosX) < 20 && abs(AlienRows[i][l].y - playerPosY) < 20){
+				if(AlienRows[i][l].y > screenHeight){
 					quit = true;
 				}
 			}
 		}
+
+		/*
+		//Collision detection
+		for(int l = 0; l < Aliens.size(); l++){
+			for(int k = 0; k < Bullets.size(); k++){
+				if(Bullets[k].x > Aliens[l].x && Bullets[k].x < Aliens[l].x+20){
+					if(Bullets[k].y < Aliens[l].y+20){	
+						Aliens[l].hit++;
+					}
+				}
+			}
+			//Game over check
+			if(Aliens[l].y > screenHeight){
+				quit = true;
+			}
+		}*/
 
 		alienShiftCounter++;
 		if(alienShiftCounter > 100) alienShiftCounter = 0;
@@ -357,13 +395,26 @@ int main(int argc, char* args[]){
 					if(AlienRows[j].size() < 1){
 						AlienRows.erase(AlienRows.begin()+j);
 					} else{
-						AlienRows[j][i].y += alienRowSeperator;
+						AlienRows[j][i].y += 40;
 					}
 				}
 			}
 			AlienRows.push_back(Aliens);
 			newAlienRow = 0;
 		}
+		/*
+		//Advance Aliens	
+		newAlienRow++;
+		if(newAlienRow > 500){
+			for(int i = 0; i < Aliens.size(); i++){
+				Aliens[i].y += 30;
+			}	
+			//for(int i = 0; i < screenWidth/25; i++){
+			//	Aliens.push_back(A);
+			//	Aliens[i+screenWidth/25].x = i*25;
+			//} 
+			newAlienRow = 0;
+		}*/
 		
 		//Update screen - end of game-loop
 		SDL_RenderPresent(render);
