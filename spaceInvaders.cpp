@@ -156,7 +156,7 @@ int main(int argc, char* args[]){
 	SDL_Window *window = NULL;
 	SDL_Renderer *render = NULL;
 	
-	//Setup eventhandler
+	//Setup event handler
 	SDL_Event inputEvent;
 
 	//Call SDL initialization subsysten
@@ -320,12 +320,6 @@ int main(int argc, char* args[]){
 		for(int i = 0; i < AlienRows.size(); i++){	
 			for(int l = 0; l < AlienRows[i].size(); l++){
 				for(int k = 0; k < Bullets.size(); k++){
-					/*if(Bullets[k].x > AlienRows[i][l].x && Bullets[k].x < AlienRows[i][l].x+20){
-						if(Bullets[k].y < AlienRows[i][l].y+20){	
-							AlienRows[i][l].hit++;
-						}
-						//Bullets.erase(Bullets.begin()+k);
-					}*/
 					if(abs(Bullets[k].x - AlienRows[i][l].x) < 20 && abs(Bullets[k].y - AlienRows[i][l].y) < 20){
 						AlienRows[i][l].hit++;
 					}
@@ -334,13 +328,7 @@ int main(int argc, char* args[]){
 				if(AlienRows[i][l].y > screenHeight){	//Alien reached bottom of screen
 					quit = true;
 				}
-				/*
-				if(AlienRows[i][l].x > playerPosX && AlienRows[i][l].x < playerPosX+20){
-					if(AlienRows[i][l].y > playerPosY){	//Alien hit spaceship
-						quit = true;
-					}
-				} */
-				if(abs(AlienRows[i][l].x - playerPosX) < 20 && abs(AlienRows[i][l].y - playerPosY) < 20){
+				if(abs(AlienRows[i][l].x - playerPosX) < 20 && abs(AlienRows[i][l].y - playerPosY) < 20){	//Alien hit spaceship
 					quit = true;
 				}
 			}
