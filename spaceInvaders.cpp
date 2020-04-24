@@ -212,7 +212,7 @@ int main(int argc, char* args[]){
 		while(SDL_PollEvent(&inputEvent) != 0){
 			if(inputEvent.type == SDL_QUIT || inputEvent.key.keysym.sym == SDLK_ESCAPE){
 				quit = true;
-			} else if(inputEvent.type = SDL_KEYDOWN){
+			} else if(inputEvent.type == SDL_KEYDOWN){	//there was an error "inputEvent.type = SDL_KEYDOWN"
 				switch (inputEvent.key.keysym.sym){
 					case SDLK_UP:
 						playerPosY -= spaceShipSteps;
